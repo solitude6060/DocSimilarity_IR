@@ -47,7 +47,8 @@ class Parser:
                         re_key_list = re_key.split()
                         #print("r", re_key_list)
                         for r in re_key_list:
-                            key4art_list.append(r)#for specific article
+                            if len(r)>1:
+                                key4art_list.append(r)#for specific article
                             
                             if r not in self.keyword_list and len(r)>1: 
                                 self.keyword_list.append(r)#for total keyword table
@@ -97,6 +98,19 @@ class Parser:
                 txt += " "+str(v)
             f.write(txt+"\n")
         f.close()
+    
+    def change2id(self, target_dict, keyword_list, art_list):
+        output_dict = {}
+        out_value_list = []
+        for key, values in target_dict.items():
+            out_value_list = []
+            out_key = art_list.index(key)
+            print(key, values)
+            for value in values:
+                
+                out_value_list.append(keyword_list.index(value))
+            output_dict[out_key] = out_value_list
+        return output_dict
 
 if __name__ == '__main__':
     path = "./data/"
@@ -110,6 +124,8 @@ if __name__ == '__main__':
     for file_path in file_list:
         article_list, keyword_list, art2key_dict = parser.XmlParser(file_path)
 
+    #print(parser.change2id(art2key_dict, keyword_list, article_list))
+
     art2key_arr = np.array(parser.dict2arr(art2key_dict, keyword_list))
     print("Total article num : ", len(article_list))
     print("Total keyword num : ", len(keyword_list))
@@ -117,5 +133,6 @@ if __name__ == '__main__':
     parser.savelist(keyword_list, "keywordTable")
     parser.savelist(article_list, "articleTable")
     parser.savedict(art2key_dict, "art2keyTable")
+    parser.savedict(parser.change2id(art2key_dict, keyword_list, article_list), "art2keyIDTable")
     np.save("./processed/art2key.npy", art2key_arr)
 
